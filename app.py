@@ -17,6 +17,9 @@ BUTTONS = {
     "❓ Другие вопросы": "Режим установлен: misc. Опиши коротко задачу."
 }
 
+CHAT_STATE = {}
+
+
 def build_keyboard(cols=2):
     keys = list(BUTTONS.keys())
     rows = [ [{"text":t} for t in keys[i:i+cols]] for i in range(0, len(keys), cols) ]
@@ -48,9 +51,14 @@ def tg_webhook():
     if text.lower() in ("/start", "start"):
         send_message(chat_id, "Привет! Выбери режим на клавиатуре ниже 👇")
     elif text in BUTTONS:
+        # сохраняем выбранный режим для этого пользователя
+        CHAT_STATE[chat_id] = text
         send_message(chat_id, BUTTONS[text])
-    else:
-        send_message(chat_id, f"Поняла. Ты написала: {text}")
+    
+    elif chat_id in CHAT_STATE:
+        # если до этого пользователь выбрал режим — воспринимаем текст как задачу
+        mode = CHAT_STATE[chat_id]
+        send_message(chat_id, f"Задача принята в режиме {mode}: {text}")
 
     return "ok"
 
